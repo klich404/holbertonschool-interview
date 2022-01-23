@@ -22,10 +22,11 @@ int is_palindrome(listint_t **head)
  */
 int checkPalindrome(listint_t **left, listint_t *right)
 {
-	if (right == NULL)
-		return (1);
+	int result;
 
-	int result = checkPalindrome(left, right->next) && ((*left)->n == right->n);
+	if (right == NULL) return (1);
+
+	result = checkPalindrome(left, right->next) && ((*left)->n == right->n);
 	(*left) = (*left)->next;
 
 	return (result);
