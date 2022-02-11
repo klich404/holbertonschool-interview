@@ -1,36 +1,42 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include "lists.h"
 
 /**
- * insert_node - inserts a number into a sorted singly linked list
- * @head: pointer to head of list
- * @number: number to insert into linked list
- * Return: the address of the new node, or NULL if it failed
+ * insert_node - Insert node into sorted linked list
+ *
+ * @head: head of sorted linked list
+ * @number: number to insert into sorted linked list
+ *
+ * Return: Address of new node or NULL on failure
  */
+
 listint_t *insert_node(listint_t **head, int number)
 {
-	listint_t *current = NULL, *new_node = malloc(sizeof(listint_t));
+	listint_t *new, *strider;
 
-	if (!new_node)
+	if (!head)
 		return (NULL);
-
-	new_node->n = number;f
-
-	if (*head == NULL || (*head)->n >= number)
+	new = malloc(sizeof(listint_t));
+	if (new == NULL)
+		return (NULL);
+	new->n = number;
+	if (!*head)
 	{
-		new_node->next = *head;
-		*head = new_node;
+		*head = new;
+		return (new);
 	}
-	else
+	strider = *head;
+	if (number < strider->n)
 	{
-		current = *head;
-		while (current->next && current->next->n < new_node->n)
-		{
-			current = current->next;
-		}
-		new_node->next = current->next;
-		current->next = new_node;
+		new->next = strider;
+		*head = new;
+		return (new);
 	}
-	return (new_node);
+	while (strider->next && number > strider->next->n)
+	{
+		strider = strider->next;
+	}
+	new->next = strider->next;
+	strider->next = new;
+	return (new);
 }
