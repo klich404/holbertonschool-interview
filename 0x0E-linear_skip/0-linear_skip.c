@@ -2,54 +2,46 @@
 #include "search.h"
 
 /**
- * linear_skip - searches for a value in a sorted skip list of integers
+ * linear_skip - Searches a skip list for a certain value
  *
- * @list: skip list
- * @value: search value
+ * @list: Pointer to the first node in the skip list
+ * @value: The value to search the list for
  *
- * Return: Address of node of value or NULL
- */
-
+ * Return: Pointer to the node with the searched-for value,
+ *		   or NULL if not found
+**/
 skiplist_t *linear_skip(skiplist_t *list, int value)
 {
-	skiplist_t *skp = NULL;
-	skiplist_t *hld = NULL;
+	skiplist_t *on = list, *search = list;
 
 	if (!list)
 		return (NULL);
-	skp = list;
-	while (skp->express)
+
+	while (search && search->express != NULL && search->n < value)
 	{
-		printf("Value checked at index [%lu] = [%i]\n",
-		       (skp->express)->index, (skp->express)->n);
-		if ((skp->express)->n >= value)
-		{
-			printf("Value found between indexes [%lu] and [%lu]\n",
-			       skp->index, (skp->express)->index);
-			break;
-		}
-		if ((skp->express)->express == NULL)
-		{
-			skp = skp->express;
-			hld = skp;
-			while (hld->next)
-				hld = hld->next;
-			printf("Value found between indexes [%lu] and [%lu]\n",
-			       skp->index, hld->index);
-			break;
-		}
-		skp = skp->express;
+		on = search;
+		search = on->express;
+		printf("Value checked at index [%lu] = [%d]\n", search->index, search->n);
 	}
-	while (skp->next)
+
+	if (!(search->express) && !(search->n > value))
 	{
-		printf("Value checked at index [%lu] = [%i]\n",
-		       skp->index, skp->n);
-		if (skp->n == value)
-			return (skp);
-		if (skp->n > value)
-			return (NULL);
-		skp = skp->next;
+		on = search;
+		while (search->next)
+			search = search->next;
 	}
-	printf("Value checked at index [%lu] = [%i]\n", skp->index, skp->n);
-	return (NULL);
+
+	printf("Value found between indexes [%lu] and [%lu]\n",
+			on->index, search->index);
+
+	while (on && on->n < value)
+	{
+		printf("Value checked at index [%lu] = [%d]\n", on->index, on->n);
+		on = on->next;
+	}
+
+	if (on)
+		printf("Value checked at index [%lu] = [%d]\n", on->index, on->n);
+
+	return (on && on->n == value ? on : NULL);
 }
