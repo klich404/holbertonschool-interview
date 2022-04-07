@@ -1,30 +1,37 @@
 #!/usr/bin/node
-if (process.argv.length !== 3) {
-    console.log('Usage: ./0-starwars_characters.js <film number>');
-  } else {
-    getCharactersInOrder(process.argv[2], 'https://swapi.co/api/people/');
+
+const requestOld = require('request');
+const util = require('util');
+
+const request = util.promisify(requestOld);
+
+const myArgs = process.argv.slice(2);
+
+if (myArgs.length !== 1) {
+  console.log("Invalid number of arguments, use like: './starwars 3'");
+  process.exit(1);
+}
+
+const movieNum = myArgs[0];
+
+async function main () {
+  const rawData = await request(`https://swapi-api.hbtn.io/api/films/${movieNum}/`);
+
+  const data = JSON.parse(rawData.body);
+
+  const characters = [];
+
+  for (let i = 0; i < data.characters.length; i++) {
+    characters.push(request(data.characters[i]).then((result) =>
+      JSON.parse(result.body)
+    ));
   }
-  
-  function getCharactersInOrder (filmID, chURL) {
-    const request = require('request');
-    request(chURL, function (error, response, body) {
-      if (error) {
-        console.error(error);
-      } else {
-        const json = JSON.parse(body);
-        chURL = json.next;
-        const characters = json.results;
-        characters.forEach(function (character) {
-          const films = character.films;
-          films.forEach(function (film) {
-            if (film.includes(filmID)) {
-              console.log(character.name);
-            }
-          });
-        });
-      }
-      if (chURL !== null) {
-        getCharactersInOrder(filmID, chURL);
-      }
-    });
+
+  const charactersResult = await Promise.all(characters);
+
+  for (let i = 0; i < charactersResult.length; i++) {
+    console.log(charactersResult[i].name);
   }
+}
+
+main();
