@@ -16,4 +16,3 @@ def rain(walls):
             if mid < left and mid < right:
                 water += min([left, right]) - mid
     return water
-    
