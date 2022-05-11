@@ -1,113 +1,120 @@
+#include <stdlib.h>
 #include "binary_trees.h"
 
 /**
- * get_tree_size - gets the size of the tree
- * @root: pointer to the first node of the tree
- * Return: the size of the tree
- */
-int get_tree_size(heap_t *root)
-{
-	if (!root)
-		return (0);
-	return (1 + get_tree_size(root->left) + get_tree_size(root->right));
-}
-
-/**
- * swap - swaps the values of two nodes
- * @node_a: node to swap value of
- * @node_b: node to swap value of
- * Return: the first given node
- */
-heap_t *swap(heap_t *node_a, heap_t *node_b)
-{
-	node_a->n = node_a->n * node_b->n;
-	node_b->n = node_a->n / node_b->n;
-	node_a->n = node_a->n / node_b->n;
-
-	return (node_a);
-}
-
-/**
- * get_node - Gets the last node of a binary tree given
- * the tree's size
- * @root: pointer to the root of the tree
- * @size: size of the tree
+ * last_node - finds last node of a binary heap
  *
- * Return: the found node ptr
+ * @root: pointer to root of heap
+ *
+ * Return: pointer to last node or NULL
  */
-heap_t *get_node(heap_t *root, int size)
+
+heap_t *last_node(heap_t *root)
 {
-	int b_idx, mask  = 0;
+	heap_t *queue[100];
+	heap_t *strider = root;
+	int enter = 0, exit = 0;
 
-	for (; 1 << (b_idx + 1) <= size; b_idx++)
-		;
-
-	for (b_idx--; b_idx >= 0; b_idx--)
+	if (!strider)
+		return (NULL);
+	while (strider->left && strider->right)
 	{
-		mask = 1 << b_idx;
-		if (size & mask)
-			root = root->right;
+		queue[enter] = strider->left;
+		enter += 1;
+		if (enter >= 99)
+			enter = 0;
+		queue[enter] = strider->right;
+		enter += 1;
+		if (enter >= 99)
+			enter = 0;
+		strider = queue[exit];
+		exit += 1;
+		if (exit >= 99)
+			exit = 0;
+	}
+	if (strider->left)
+		return (strider->left);
+	if (exit == 0)
+		return (queue[98]->right);
+	return (queue[exit - 1]->right);
+}
+
+/**
+ * sink_down - sinks down a binary heap
+ *
+ * @root: root of heap
+ *
+ * Return: void
+ */
+
+void sink_down(heap_t *root)
+{
+	heap_t *sink = root;
+	int left, right;
+
+	while (sink->left)
+	{
+		left = (sink->left)->n;
+		if (sink->right)
+		{
+			right = (sink->right)->n;
+			if (sink->n >= left && sink->n >= right)
+				break;
+			if (right > left)
+			{
+				(sink->right)->n = sink->n;
+				sink->n = right;
+				sink = sink->right;
+			}
+			else
+			{
+				(sink->left)->n = sink->n;
+				sink->n = left;
+				sink = sink->left;
+			}
+		}
 		else
-			root = root->left;
+		{
+			if (sink->n >= left)
+				break;
+			(sink->left)->n = sink->n;
+			sink->n = left;
+		}
 	}
-	return (root);
+
 }
 
-/**
- * heapify - Turns a binary tree into a valid max heap tree
- * @root: root node of the binary tree to heapify
- */
-void heapify(heap_t *root)
-{
-	heap_t *max;
-	int first = 0;
-
-	if (!root)
-		return;
-	while (max || !first)
-	{
-		max = NULL;
-		first = 1;
-		if (root->left && root->left->n > root->n)
-			max = root->left;
-		if (root->right && root->right->n > root->n &&
-				(max && root->right->n > max->n))
-			max = root->right;
-		if (max)
-			root = swap(max, root);
-	}
-}
 
 /**
- * heap_extract - extracts the root node of a Max Binary Heap
- * @root: double pointer to the root of the heap
- * Return: the value stored in the root node, or 0.
+ * heap_extract - extract root node of a binary heap
+ *
+ * @root: root of binary heap
+ *
+ * Return: Value of root or 0
  */
+
 int heap_extract(heap_t **root)
 {
-	int max;
-	int size;
-	heap_t *last_node;
+	heap_t *xtract = NULL, *move = NULL;
+	int temp;
 
 	if (!root || !*root)
 		return (0);
-	max = (*root)->n;
-	size = get_tree_size(*root);
-	last_node = get_node(*root, size);
-
-	if (last_node->parent)
+	xtract = *root;
+	move = last_node(*root);
+	if (move->parent)
 	{
-		swap(last_node, *root);
-		if (last_node->parent->left == last_node)
-			last_node->parent->left = NULL;
+		if ((move->parent)->right)
+			(move->parent)->right = NULL;
 		else
-			last_node->parent->right = NULL;
+			(move->parent)->left = NULL;
+		move->parent = NULL;
 	}
-	else
-	{
-		*root = NULL;
-	}
-	free(last_node);
-	heapify(*root);
-	return (max);
+	move->left = xtract->left;
+	move->right = xtract->right;
+	*root = move;
+	sink_down(move);
+	temp = xtract->n;
+	free(xtract);
+	return (temp);
 }
