@@ -9,10 +9,10 @@
  * Return: pointer to last node or NULL
  */
 
-heap_t *last_node(heap_t *root)
+binary_tree_t *last_node(binary_tree_t *root)
 {
-	heap_t *queue[100];
-	heap_t *strider = root;
+	binary_tree_t *queue[100];
+	binary_tree_t *strider = root;
 	int enter = 0, exit = 0;
 
 	if (!strider)
@@ -47,9 +47,9 @@ heap_t *last_node(heap_t *root)
  * Return: void
  */
 
-void sink_down(heap_t *root)
+void sink_down(binary_tree_t *root)
 {
-	heap_t *sink = root;
+	binary_tree_t *sink = root;
 	int left, right;
 
 	while (sink->left)
@@ -93,9 +93,9 @@ void sink_down(heap_t *root)
  * Return: Value of root or 0
  */
 
-int heap_extract(heap_t **root)
+int heap_extract(binary_tree_t **root)
 {
-	heap_t *xtract = NULL, *move = NULL;
+	binary_tree_t *xtract = NULL, *move = NULL;
 	int temp;
 
 	if (!root || !*root)
