@@ -1,89 +1,103 @@
-#include "multiplication.h"
+#include "holberton.h"
 
 /**
- * main - the entry point
- * @argc: Number of arguments
- * @argv: Arguments to multiply
- * Return: return 0, 98 otherwise and prints Error
+ * _puts - print each string number
+ * @s: string. number
+ * Return: void
  */
-int main(int argc, char *argv[])
+void _puts(char *s)
 {
-	int p, res, len, n1, n2, i, j;
-	int *total;
-
-	if (argc < 3 || argc > 3 || !(_isdigit(argv[1])) || !(_isdigit(argv[2])))
-		puts("Error"), exit(98);
-	if (argv[1][0] == '0' || argv[2][0] == '0')
+	if (*s != '\0')
 	{
-		printf("0\n");
-		return (0);
+		_putchar(*s);
+		puts(s + 1);
 	}
-	n1 = _strlen(argv[1]), n2 = _strlen(argv[2]);
-	len = n1 + n2;
-	total = calloc(len, sizeof(int *));
-	if (total == NULL)
-		puts("Error"), exit(98);
-	for (i = (n2 - 1); i > -1; i--)
+}
+/**
+ * _isdigit - check if s is a number or not.
+ * @s: string to check.
+ * Return: 0 if s is a number otherwise 1.
+ */
+int _isdigit(char *s)
+{
+	int i, digit = 0;
+
+	for (i = 0; s[i] && !digit; i++)
 	{
-		res = 0;
-		for (j = (n1 - 1); j > -1; j--)
+		if (s[i] < '0' || s[i] > '9')
+			digit++;
+	}
+	return (digit);
+}
+/**
+ * operations - multiplies, adds and stores the result in a string.
+ * @num1: first number.
+ * @num2: second number.
+ * @len1: length of num1.
+ * @len2: length of num2.
+ * Return: result of multiplies.
+ */
+char *operations(char *num1, char *num2, int len1, int len2)
+{
+	char *result = NULL;
+	int i, j, carry, len_total = (len1 + len2);
+
+	result = malloc(sizeof(char) * len_total);
+	if (!result)
+	{
+		_puts("Error");
+		exit(98);
+	}
+	for (i = 0; i < len_total; i++)
+		result[i] = '0';
+	for (i = len1 - 1; i >= 0; i--)
+	{
+		carry = 0;
+		for (j = len2 - 1; j >= 0; j--)
 		{
-			p = (argv[2][i] - '0') * (argv[1][j] - '0');
-			res = (p / 10);
-			total[(i + j) + 1] += (p % 10);
-			if (total[(i + j) + 1] > 9)
-			{
-				total[i + j] += total[(i + j) + 1] / 10;
-				total[(i + j) + 1] = total[(i + j) + 1] % 10;
-			}
-			total[(i + j)] += res;
+			carry += (num1[i] - '0') * (num2[j] - '0');
+			carry += result[i + j + 1] - '0';
+			result[i + j + 1] = (carry % 10) + '0';
+			carry /= 10;
 		}
+		if (carry)
+			result[i + j + 1] = (carry % 10) + '0';
 	}
-	if (total[0] == 0)
-		i = 1;
+	return (result);
+}
+/**
+ * main - multiplies two positive numbers.
+ * description: Usage: mul num1 num2
+ * Print the result, followed by a new line.
+ * @av: arguments value (num1, num2)
+ * @ac: arguments count
+ * Return: 0 if success otherwise 98 and print Error.
+ */
+int main(int ac, char **av)
+{
+	int len1 = 0, len2 = 0;
+	char *num1 = av[1], *num2 = av[2], *result = NULL;
+
+	if (ac != 3 || _isdigit(num1) || _isdigit(num2))
+	{
+		_puts("Error");
+		exit(98);
+	}
+	if (av[1][0] == 48 || av[2][0] == 48)
+	{
+		_puts("0");
+		exit(0);
+	}
+	while (num1[len1])
+		len1++;
+	while (num2[len2])
+		len2++;
+
+	result = operations(num1, num2, len1, len2);
+	if (result[0] == '0')
+		_puts(result + 1);
 	else
-		i = 0;
-	for (; i < len; i++)
-		printf("%d", total[i]);
-	printf("\n");
-	free(total);
+		_puts(result);
+	free(result);
 	return (0);
-}
-
-/**
- * _isdigit - check if a string is a digit
- * Description - This function is to check if a string is a digit
- * @n: Sring to guess if is an uppercase character
- * Return: 1 if n is a digit, 0 otherwise
- */
-int _isdigit(char *n)
-{
-	int i;
-
-	i = 0;
-	while (*(n + i) != '\0')
-	{
-		if (*(n + i) < '0' || *(n + i) > '9')
-			return (0);
-		i++;
-	}
-	return (1);
-}
-
-/**
- * _strlen - Return the len of a string
- * Description: This function shows the length of a given string
- * @s: Pointer that contains the string
- * Return: @s len
- */
-int _strlen(const char *s)
-{
-	int len = 0;
-
-	while (*s != '\0')
-	{
-		len++;
-		s++;
-	}
-	return (len);
 }
